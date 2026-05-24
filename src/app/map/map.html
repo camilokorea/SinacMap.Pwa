@@ -44,6 +44,8 @@
             <div class="progress-bar-fill" [style.width.%]="progressPercentage"></div>
           </div>
         </div>
+
+        <app-my-badges [areas]="protectedAreas"></app-my-badges>
       </div>
     } @else {
       <button class="google-login-btn" (click)="login()">
@@ -78,19 +80,27 @@
       }
     </div>
 
-    <div class="chips-container">
-      @for (cat of categories; track cat) {
-        <button 
-          class="filter-chip" 
-          [class.active]="selectedCategories.has(cat)"
-          (click)="toggleCategory(cat)">
-          <span class="indicator"></span>
-          {{ cat }}
-        </button>
+    <button class="section-toggle" (click)="categoriesCollapsed = !categoriesCollapsed">
+      <span class="section-toggle-label">Categorías</span>
+      <svg class="section-chevron" [class.collapsed]="categoriesCollapsed" viewBox="0 0 24 24" width="16" height="16">
+        <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+      </svg>
+    </button>
+    @if (!categoriesCollapsed) {
+      <div class="chips-container">
+        @for (cat of categories; track cat) {
+          <button
+            class="filter-chip"
+            [class.active]="selectedCategories.has(cat)"
+            (click)="toggleCategory(cat)">
+            <span class="indicator"></span>
+            {{ cat }}
+          </button>
+        }
+      </div>
+      @if (selectedCategories.size > 0) {
+        <p class="filter-hint">Mostrando áreas filtradas</p>
       }
-    </div>
-    @if (selectedCategories.size > 0) {
-      <p class="filter-hint">Mostrando áreas filtradas</p>
     }
   </div>
 

@@ -1,0 +1,27 @@
+<div class="badges-section">
+  <button class="badges-header" (click)="collapsed = !collapsed">
+    <span class="badges-title">Mis Insignias</span>
+    <div class="badges-header-right">
+      <span class="badges-count">✦ {{ earnedCount }} / {{ badges.length }}</span>
+      <svg class="collapse-chevron" [class.collapsed]="collapsed" viewBox="0 0 24 24" width="16" height="16">
+        <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+      </svg>
+    </div>
+  </button>
+
+  @if (!collapsed) {
+    <div class="badges-grid">
+      @for (badge of badges; track badge.id) {
+        <div class="badge-chip" [class.earned]="badge.earned" [title]="badge.description">
+          <svg class="badge-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.d]="badge.svgPath" />
+          </svg>
+          <span class="badge-name">{{ badge.name }}</span>
+          @if (!badge.earned) {
+            <span class="badge-progress">{{ badge.progress }}/{{ badge.total }}</span>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

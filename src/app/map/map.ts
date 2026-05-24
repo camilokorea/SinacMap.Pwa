@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ApiService, ProtectedArea } from '../services/api';
 import { AuthService } from '../services/auth';
+import { MyBadgesComponent } from '../my-badges/my-badges';
 import { User } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import panzoom, { PanZoom } from 'panzoom';
@@ -11,7 +12,7 @@ import panzoom, { PanZoom } from 'panzoom';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, FormsModule],
+  imports: [CommonModule, DecimalPipe, FormsModule, MyBadgesComponent],
   templateUrl: './map.html',
   styleUrls: ['./map.scss'],
   encapsulation: ViewEncapsulation.None
@@ -43,6 +44,7 @@ export class Map implements OnInit {
   // Filter state
   categories: string[] = [];
   selectedCategories: Set<string> = new Set<string>();
+  categoriesCollapsed = false;
 
   get selectedRegionFacebookUrl(): string {
     if (!this.selectedArea) return 'https://www.facebook.com/cr.sinac';

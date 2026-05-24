@@ -1,0 +1,161 @@
+.badges-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.badges-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 6px;
+
+  &:hover .badges-title {
+    opacity: 0.8;
+  }
+}
+
+.badges-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.collapse-chevron {
+  fill: rgba(255, 255, 255, 0.5);
+  transition: transform 0.2s ease;
+
+  &.collapsed {
+    transform: rotate(-90deg);
+  }
+}
+
+.badges-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badges-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.badge-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: default;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  filter: grayscale(1);
+  opacity: 0.45;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.earned {
+    filter: none;
+    opacity: 1;
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.4);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.2);
+
+    .badge-icon {
+      fill: #fbbf24;
+    }
+
+    .badge-name {
+      color: #fbbf24;
+    }
+  }
+}
+
+.badge-icon {
+  width: 28px;
+  height: 28px;
+  fill: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.badge-name {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  line-height: 1.2;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.badge-progress {
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.5px;
+}
+
+// Light theme overrides (map-wrapper without dark-theme class)
+:host-context(.map-wrapper:not(.dark-theme)) {
+  .badges-section {
+    border-top-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .badges-title {
+    color: rgba(0, 0, 0, 0.75);
+  }
+
+  .collapse-chevron {
+    fill: rgba(0, 0, 0, 0.4);
+  }
+
+  .badge-chip {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+
+    &.earned {
+      background: rgba(251, 191, 36, 0.18);
+      border-color: rgba(251, 191, 36, 0.5);
+
+      .badge-icon {
+        fill: #d97706;
+      }
+
+      .badge-name {
+        color: #92400e;
+      }
+    }
+  }
+
+  .badge-icon {
+    fill: rgba(0, 0, 0, 0.4);
+  }
+
+  .badge-name {
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  .badge-progress {
+    color: rgba(0, 0, 0, 0.35);
+  }
+}

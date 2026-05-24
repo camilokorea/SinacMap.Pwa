@@ -104,14 +104,16 @@
 .filters-panel {
   @extend .glass-panel;
   position: absolute;
-  top: 80px; /* Below FAB */
+  top: 80px;
+  bottom: 20px;
   left: 20px;
   z-index: 10;
-  width: 400px; /* Increased width */
+  width: 400px;
   padding: 24px;
+  overflow-y: auto;
   transform: translateX(-150%);
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
+
   &.open {
     transform: translateX(0);
   }
@@ -356,6 +358,41 @@
           font-size: 0.9rem;
         }
       }
+    }
+  }
+
+  .section-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 4px 0 10px;
+    cursor: pointer;
+    font-family: inherit;
+
+    &:hover .section-toggle-label {
+      opacity: 0.7;
+    }
+  }
+
+  .section-toggle-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: opacity 0.15s ease;
+  }
+
+  .section-chevron {
+    fill: var(--text-muted);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+
+    &.collapsed {
+      transform: rotate(-90deg);
     }
   }
 
