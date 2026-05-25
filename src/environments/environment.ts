@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBI39Zasp9ksHE2ZAzZj4bAM27G14LwipE",
+    apiKey: "YOUR_FIREBASE_API_KEY",
     authDomain: "birdetector.firebaseapp.com",
     projectId: "birdetector",
     storageBucket: "birdetector.firebasestorage.app",

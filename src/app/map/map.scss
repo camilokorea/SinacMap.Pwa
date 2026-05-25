@@ -542,7 +542,9 @@
   
   .card-body {
     padding: 30px 24px 20px 24px;
-    
+    overflow-y: auto;
+    max-height: calc(80vh - 180px);
+
     h2 {
       margin: 0 0 20px 0;
       color: #064e3b;
@@ -678,6 +680,85 @@
         }
       }
     }
+  }
+}
+
+// AI-generated content styles (nested inside .info-card scope via map.scss)
+.ai-description {
+  margin: 14px 0 10px;
+  padding: 12px 14px;
+  background: rgba(5, 150, 105, 0.06);
+  border-left: 3px solid #059669;
+  border-radius: 0 8px 8px 0;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #334155;
+    line-height: 1.55;
+  }
+}
+
+.must-see-section {
+  margin: 14px 0 10px;
+
+  .must-see-title {
+    margin: 0 0 8px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .must-see-list {
+    margin: 0;
+    padding: 0 0 0 16px;
+    list-style: none;
+
+    li {
+      position: relative;
+      padding: 4px 0 4px 18px;
+      font-size: 0.88rem;
+      color: #475569;
+      line-height: 1.45;
+
+      &::before {
+        content: '●';
+        position: absolute;
+        left: 0;
+        color: #059669;
+        font-size: 0.6rem;
+        top: 7px;
+      }
+    }
+  }
+}
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 10px 0 4px;
+  padding: 3px 9px;
+  background: rgba(100, 116, 139, 0.1);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 500;
+
+  &::before {
+    content: '✦';
+    font-size: 0.65rem;
+  }
+}
+
+.dark-theme {
+  .ai-description p {
+    color: #cbd5e1;
+  }
+  .must-see-list li {
+    color: #94a3b8;
   }
 }
 

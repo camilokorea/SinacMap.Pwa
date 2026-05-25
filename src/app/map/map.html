@@ -163,7 +163,28 @@
           <span class="label">Área</span>
           <span class="value">{{ selectedArea.area_km2 | number:'1.2-2' }} km²</span>
         </div>
-        
+
+        @if (selectedArea.aiDescripcion) {
+          <div class="ai-description">
+            <p>{{ selectedArea.aiDescripcion }}</p>
+          </div>
+        }
+
+        @if (selectedArea.mustSee && selectedArea.mustSee.length > 0) {
+          <div class="must-see-section">
+            <h4 class="must-see-title">Qué ver</h4>
+            <ul class="must-see-list">
+              @for (item of selectedArea.mustSee; track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (selectedArea.aiDescripcion) {
+          <div class="ai-badge">Contenido generado por IA</div>
+        }
+
         <div class="info-row" style="margin-top: 16px;">
           <a [href]="selectedRegionFacebookUrl" target="_blank" class="facebook-btn">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">

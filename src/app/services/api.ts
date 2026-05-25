@@ -17,6 +17,8 @@ export interface ProtectedArea {
   area_ha: string;
   area_km2: string;
   visitado: boolean;
+  aiDescripcion?: string;
+  mustSee?: string[];
 }
 
 @Injectable({
