@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, inject, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject, ViewEncapsulation, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -6,7 +6,8 @@ import { ApiService, ProtectedArea } from '../services/api';
 import { AuthService } from '../services/auth';
 import { MyBadgesComponent } from '../my-badges/my-badges';
 import { User } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import panzoom, { PanZoom } from 'panzoom';
 
 @Component({
@@ -40,6 +41,27 @@ export class Map implements OnInit {
   // UI state
   isDarkTheme: boolean = false;
   filtersOpen: boolean = false;
+  offlineBanner: string | null = null;
+  onlineBanner: boolean = false;
+  private onlineTimer: ReturnType<typeof setTimeout> | null = null;
+
+  @HostListener('window:offline')
+  onOffline() {
+    if (this.onlineTimer) { clearTimeout(this.onlineTimer); this.onlineTimer = null; }
+    this.onlineBanner = false;
+    this.offlineBanner = 'Sin conexión';
+  }
+
+  @HostListener('window:online')
+  onOnline() {
+    this.offlineBanner = null;
+    this.onlineBanner = true;
+    this.onlineTimer = setTimeout(() => {
+      this.onlineBanner = false;
+      this.onlineTimer = null;
+      this.cdr.detectChanges();
+    }, 3000);
+  }
 
   // Filter state
   categories: string[] = [];
@@ -62,15 +84,24 @@ export class Map implements OnInit {
   }
 
   ngOnInit() {
-    // Load theme preference
     const savedTheme = localStorage.getItem('theme');
     this.isDarkTheme = savedTheme === 'dark';
+
+    if (!navigator.onLine) {
+      this.offlineBanner = 'Sin conexión';
+    }
 
     this.user$.subscribe(() => {
       this.loadProtectedAreas();
     });
 
-    this.apiService.getSvgMap().subscribe(svgContent => {
+    this.apiService.getSvgMap().pipe(
+      catchError(() => {
+        this.offlineBanner = 'No se pudo cargar el mapa — sin conexión';
+        return of('');
+      })
+    ).subscribe(svgContent => {
+      if (!svgContent) return;
       this.mapHtml = this.sanitizer.bypassSecurityTrustHtml(svgContent);
       this.cdr.detectChanges();
       const svgElement = this.mapContainer.nativeElement.querySelector('svg');
@@ -101,7 +132,13 @@ export class Map implements OnInit {
   }
 
   loadProtectedAreas() {
-    this.apiService.getProtectedAreas().subscribe(data => {
+    this.apiService.getProtectedAreas().pipe(
+      catchError(() => {
+        this.offlineBanner = 'Sin conexión — mostrando datos en caché';
+        return of([] as ProtectedArea[]);
+      })
+    ).subscribe(data => {
+      if (data.length > 0) this.offlineBanner = null;
       this.protectedAreas = data;
       this.categories = [...new Set(data.map(a => a.categoria))].filter(c => c).sort();
       this.applyFiltersAndColors();
@@ -173,20 +210,24 @@ export class Map implements OnInit {
   }
 
   toggleVisit(area: ProtectedArea) {
-    this.apiService.toggleVisit(area.codigo).subscribe(() => {
-      area.visitado = !area.visitado;
-      
-      // Haptic Feedback for mobile
-      if ('vibrate' in navigator) {
-        if (area.visitado) {
-          navigator.vibrate([30, 20, 30]); // Success pattern
-        } else {
-          navigator.vibrate(20); // Short tap
-        }
-      }
+    const wasVisited = area.visitado;
+    area.visitado = !area.visitado;
+    this.applyFiltersAndColors();
+    this.cdr.detectChanges();
 
-      this.applyFiltersAndColors();
-      this.cdr.detectChanges();
+    this.apiService.toggleVisit(area.codigo).pipe(
+      catchError(() => {
+        area.visitado = wasVisited;
+        this.offlineBanner = 'No se pudo guardar — sin conexión';
+        this.applyFiltersAndColors();
+        this.cdr.detectChanges();
+        return of(null);
+      })
+    ).subscribe(result => {
+      if (result === null) return;
+      if ('vibrate' in navigator) {
+        navigator.vibrate(area.visitado ? [30, 20, 30] : 20);
+      }
     });
   }
 

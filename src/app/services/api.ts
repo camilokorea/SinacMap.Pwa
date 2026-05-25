@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ProtectedArea {
   codigo: string;
@@ -23,8 +24,7 @@ export interface ProtectedArea {
 })
 export class ApiService {
   private http = inject(HttpClient);
-  // Using the HTTP profile port to avoid local HTTPS certificate issues
-  private apiUrl = 'http://localhost:5036/api/protected-areas'; 
+  private apiUrl = `${environment.apiUrl}/protected-areas`;
 
   getProtectedAreas(): Observable<ProtectedArea[]> {
     return this.http.get<ProtectedArea[]>(this.apiUrl);
