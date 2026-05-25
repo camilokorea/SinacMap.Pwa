@@ -155,16 +155,15 @@ export class Map implements OnInit {
 
   centerMap() {
     if (!this.pzInstance) return;
-    
+
     const container = this.mapContainer.nativeElement;
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    
-    // Exact dimensions from the SVG file
-    const svgWidth = 732.965; 
-    const svgHeight = 656.052; 
 
-    // Target about 85% of the screen
+    const svgElement = this.mapContainer.nativeElement.querySelector('svg');
+    const svgWidth = svgElement ? parseFloat(svgElement.getAttribute('width') ?? '733') : 733;
+    const svgHeight = svgElement ? parseFloat(svgElement.getAttribute('height') ?? '656') : 656;
+
     const initialZoom = Math.min(
       (containerWidth * 0.85) / svgWidth,
       (containerHeight * 0.85) / svgHeight
@@ -249,11 +248,12 @@ export class Map implements OnInit {
       const sinacValue = path.getAttribute('data-sinac');
       if (!sinacValue) return;
 
-      // Store original colors to restore them later
+      // Store original colors to restore them later.
+      // Fall back to presentation attributes in case inline style was stripped by SVG optimization.
       if (!path.dataset['originalFill']) {
-        path.dataset['originalFill'] = path.style.fill || '';
-        path.dataset['originalStroke'] = path.style.stroke || '';
-        path.dataset['originalStrokeWidth'] = path.style.strokeWidth || '';
+        path.dataset['originalFill'] = path.style.fill || path.getAttribute('fill') || '';
+        path.dataset['originalStroke'] = path.style.stroke || path.getAttribute('stroke') || '';
+        path.dataset['originalStrokeWidth'] = path.style.strokeWidth || path.getAttribute('stroke-width') || '';
       }
 
       const codigo = sinacValue.split('-')[0];

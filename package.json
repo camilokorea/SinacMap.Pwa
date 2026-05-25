@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "optimize-svg": "svgo --config svgo.config.mjs -i public/mapa.svg -o public/mapa.svg --multipass"
   },
   "private": true,
   "packageManager": "npm@10.9.3",
