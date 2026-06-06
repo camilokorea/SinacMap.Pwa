@@ -5,6 +5,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ApiService, ProtectedArea } from '../services/api';
 import { AuthService } from '../services/auth';
 import { MyBadgesComponent } from '../my-badges/my-badges';
+import { ShareCardComponent } from '../share-card/share-card';
 import { User } from '@angular/fire/auth';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -13,7 +14,7 @@ import panzoom, { PanZoom } from 'panzoom';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, FormsModule, MyBadgesComponent],
+  imports: [CommonModule, DecimalPipe, FormsModule, MyBadgesComponent, ShareCardComponent],
   templateUrl: './map.html',
   styleUrls: ['./map.scss'],
   encapsulation: ViewEncapsulation.None
@@ -32,6 +33,8 @@ export class Map implements OnInit {
   private pzInstance: PanZoom | null = null;
 
   user$: Observable<User | null> = this.authService.user$;
+  currentUser: User | null = null;
+  showShareCard = false;
 
   // Search state
   searchQuery: string = '';
@@ -91,7 +94,8 @@ export class Map implements OnInit {
       this.offlineBanner = 'Sin conexión';
     }
 
-    this.user$.subscribe(() => {
+    this.user$.subscribe(user => {
+      this.currentUser = user;
       this.loadProtectedAreas();
     });
 

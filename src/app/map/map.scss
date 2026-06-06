@@ -301,6 +301,30 @@
         }
       }
     }
+
+    .share-progress-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      background: rgba(14, 165, 233, 0.08);
+      color: var(--accent-color);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, border-color 0.15s;
+
+      &:hover {
+        background: rgba(14, 165, 233, 0.16);
+        border-color: rgba(14, 165, 233, 0.5);
+      }
+    }
   }
 
   .search-box {
