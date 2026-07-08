@@ -7,6 +7,7 @@ import { AuthService } from '../services/auth';
 import { GeolocationService } from '../services/geolocation';
 import { MyBadgesComponent } from '../my-badges/my-badges';
 import { ShareCardComponent } from '../share-card/share-card';
+import { LeaderboardComponent } from '../leaderboard/leaderboard';
 import { User } from '@angular/fire/auth';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -16,7 +17,7 @@ import panzoom, { PanZoom } from 'panzoom';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, FormsModule, MyBadgesComponent, ShareCardComponent],
+  imports: [CommonModule, DecimalPipe, FormsModule, MyBadgesComponent, ShareCardComponent, LeaderboardComponent],
   templateUrl: './map.html',
   styleUrls: ['./map.scss'],
   encapsulation: ViewEncapsulation.None
@@ -38,6 +39,7 @@ export class Map implements OnInit {
   user$: Observable<User | null> = this.authService.user$;
   currentUser: User | null = null;
   showShareCard = false;
+  showLeaderboard = false;
 
   // Search state
   searchQuery: string = '';

@@ -1,0 +1,52 @@
+<div class="lb-overlay" (click)="close()">
+  <div class="lb-modal" (click)="$event.stopPropagation()">
+
+    <div class="lb-modal-header">
+      <h3 class="lb-title">🏆 Clasificación Global</h3>
+      <button class="lb-close" (click)="close()" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </button>
+    </div>
+
+    <p class="lb-subtitle">Los exploradores que más áreas protegidas han visitado</p>
+
+    @if (loading) {
+      <div class="lb-state">
+        <div class="lb-spinner"></div>
+        <span>Cargando clasificación...</span>
+      </div>
+    } @else if (error) {
+      <div class="lb-state">
+        <span>No se pudo cargar la clasificación. Inténtalo de nuevo.</span>
+      </div>
+    } @else if (entries.length === 0) {
+      <div class="lb-state">
+        <span>Aún no hay exploradores en la clasificación. ¡Sé el primero en marcar un área!</span>
+      </div>
+    } @else {
+      <ol class="lb-list">
+        @for (entry of entries; track entry.rank) {
+          <li class="lb-row" [class.top]="entry.rank <= 3" [class.me]="entry.isCurrentUser">
+            <span class="lb-rank">
+              @if (medal(entry.rank)) {
+                <span class="lb-medal">{{ medal(entry.rank) }}</span>
+              } @else {
+                {{ entry.rank }}
+              }
+            </span>
+            <span class="lb-name">
+              {{ entry.displayName }}
+              @if (entry.isCurrentUser) {
+                <span class="lb-you">Tú</span>
+              }
+            </span>
+            <span class="lb-count">{{ entry.visitedCount }}</span>
+          </li>
+        }
+      </ol>
+    }
+
+  </div>
+</div>
