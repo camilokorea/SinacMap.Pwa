@@ -2,13 +2,15 @@ import { Component, ElementRef, OnInit, ViewChild, inject, ViewEncapsulation, Ch
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { ApiService, ProtectedArea } from '../services/api';
+import { ApiService, ProtectedArea, VisitError } from '../services/api';
 import { AuthService } from '../services/auth';
+import { GeolocationService } from '../services/geolocation';
 import { MyBadgesComponent } from '../my-badges/my-badges';
 import { ShareCardComponent } from '../share-card/share-card';
 import { User } from '@angular/fire/auth';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 import panzoom, { PanZoom } from 'panzoom';
 
 @Component({
@@ -26,6 +28,7 @@ export class Map implements OnInit {
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
+  private geolocationService = inject(GeolocationService);
 
   mapHtml: SafeHtml = '';
   protectedAreas: ProtectedArea[] = [];
@@ -47,6 +50,10 @@ export class Map implements OnInit {
   offlineBanner: string | null = null;
   onlineBanner: boolean = false;
   private onlineTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // GPS check-in state
+  checkingLocation: boolean = false;
+  locationBanner: string | null = null;
 
   @HostListener('window:offline')
   onOffline() {
@@ -213,16 +220,53 @@ export class Map implements OnInit {
   }
 
   toggleVisit(area: ProtectedArea) {
+    // Un-marking a visit never requires a location check.
+    const hasGeofence = area.visitado === false &&
+      typeof area.latitud === 'number' && typeof area.longitud === 'number' && typeof area.geofenceRadiusKm === 'number';
+
+    if (!hasGeofence) {
+      this.performToggle(area);
+      return;
+    }
+
+    this.locationBanner = null;
+    this.checkingLocation = true;
+    this.cdr.detectChanges();
+
+    this.geolocationService.getCurrentPosition().then(coords => {
+      this.checkingLocation = false;
+      const distance = this.geolocationService.distanceKm(area.latitud!, area.longitud!, coords.latitud, coords.longitud);
+
+      if (distance > area.geofenceRadiusKm!) {
+        this.locationBanner = `Estás a ${distance.toFixed(1)} km del área — debes estar dentro de sus límites para marcarla como visitada.`;
+        this.cdr.detectChanges();
+        return;
+      }
+
+      this.performToggle(area, coords);
+    }).catch(() => {
+      this.checkingLocation = false;
+      this.locationBanner = 'No se pudo obtener tu ubicación. Activa el GPS e inténtalo de nuevo.';
+      this.cdr.detectChanges();
+    });
+  }
+
+  private performToggle(area: ProtectedArea, coords?: { latitud: number; longitud: number }) {
     const wasVisited = area.visitado;
     area.visitado = !area.visitado;
     this.applyFiltersAndColors();
     this.cdr.detectChanges();
 
-    this.apiService.toggleVisit(area.codigo).pipe(
-      catchError(() => {
+    this.apiService.toggleVisit(area.codigo, coords).pipe(
+      catchError((err: HttpErrorResponse) => {
         area.visitado = wasVisited;
-        this.offlineBanner = 'No se pudo guardar — sin conexión';
         this.applyFiltersAndColors();
+        if (err.status === 400 && err.error) {
+          const visitError = err.error as VisitError;
+          this.locationBanner = visitError.message || 'No se pudo verificar tu ubicación.';
+        } else {
+          this.offlineBanner = 'No se pudo guardar — sin conexión';
+        }
         this.cdr.detectChanges();
         return of(null);
       })

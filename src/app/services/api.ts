@@ -19,6 +19,21 @@ export interface ProtectedArea {
   visitado: boolean;
   aiDescripcion?: string;
   mustSee?: string[];
+  latitud?: number;
+  longitud?: number;
+  geofenceRadiusKm?: number;
+}
+
+export interface VisitCoords {
+  latitud: number;
+  longitud: number;
+}
+
+export interface VisitError {
+  error: 'location_required' | 'out_of_range' | string;
+  message: string;
+  distanceKm?: number;
+  radiusKm?: number;
 }
 
 @Injectable({
@@ -32,8 +47,8 @@ export class ApiService {
     return this.http.get<ProtectedArea[]>(this.apiUrl);
   }
 
-  toggleVisit(codigo: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${codigo}/visit`, {});
+  toggleVisit(codigo: string, coords?: VisitCoords): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${codigo}/visit`, coords ?? {});
   }
 
   getSvgMap(): Observable<string> {

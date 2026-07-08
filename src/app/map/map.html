@@ -127,6 +127,14 @@
     </div>
   }
 
+  <!-- GPS check-in banner -->
+  @if (locationBanner) {
+    <div class="location-banner" (click)="locationBanner = null">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+      {{ locationBanner }}
+    </div>
+  }
+
   <!-- Map container -->
   <div #mapContainer class="map-container" [innerHTML]="mapHtml" (click)="handleMapClick($event)"></div>
   
@@ -209,10 +217,17 @@
       
       <div class="card-footer">
         @if (user$ | async) {
-          <button class="status-toggle-btn" [class.visited]="selectedArea.visitado" (click)="toggleVisit(selectedArea)">
+          <button class="status-toggle-btn" [class.visited]="selectedArea.visitado" [disabled]="checkingLocation" (click)="toggleVisit(selectedArea)">
             <span class="status-dot"></span>
-            {{ selectedArea.visitado ? '¡Visitado!' : 'Marcar como Visitado' }}
+            @if (checkingLocation) {
+              Verificando ubicación…
+            } @else {
+              {{ selectedArea.visitado ? '¡Visitado!' : 'Marcar como Visitado' }}
+            }
           </button>
+          @if (!selectedArea.visitado && selectedArea.geofenceRadiusKm) {
+            <p class="geofence-hint">Debes estar a menos de {{ selectedArea.geofenceRadiusKm | number:'1.0-1' }} km del área para marcarla como visitada.</p>
+          }
         } @else {
           <div class="status" [class.visited]="selectedArea.visitado">
             <span class="status-dot"></span>
