@@ -36,6 +36,13 @@ export interface VisitError {
   radiusKm?: number;
 }
 
+export interface LeaderboardEntry {
+  rank: number;
+  displayName: string;
+  visitedCount: number;
+  isCurrentUser: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -53,5 +60,9 @@ export class ApiService {
 
   getSvgMap(): Observable<string> {
     return this.http.get('mapa.svg', { responseType: 'text' });
+  }
+
+  getLeaderboard(): Observable<LeaderboardEntry[]> {
+    return this.http.get<LeaderboardEntry[]>(`${environment.apiUrl}/leaderboard`);
   }
 }

@@ -61,6 +61,14 @@
       </button>
     }
 
+    <!-- Global Leaderboard entry point -->
+    <button class="leaderboard-btn" (click)="showLeaderboard = true">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M7 4V2h10v2h4v3a5 5 0 0 1-4.9 5A5 5 0 0 1 13 15.9V18h3v2H8v-2h3v-2.1A5 5 0 0 1 6.9 12 5 5 0 0 1 3 7V4h4zm0 2H5v1a3 3 0 0 0 2 2.83V6zm12 0h-2v3.83A3 3 0 0 0 19 7V6z"/>
+      </svg>
+      Clasificación Global
+    </button>
+
     <!-- Search Bar -->
     <div class="search-box">
       <div class="search-input-wrapper">
@@ -244,5 +252,9 @@
       [areas]="protectedAreas"
       (closed)="showShareCard = false">
     </app-share-card>
+  }
+
+  @if (showLeaderboard) {
+    <app-leaderboard (closed)="showLeaderboard = false"></app-leaderboard>
   }
 </div>
