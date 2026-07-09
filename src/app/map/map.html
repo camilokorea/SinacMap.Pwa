@@ -236,6 +236,40 @@
           @if (!selectedArea.visitado && selectedArea.geofenceRadiusKm) {
             <p class="geofence-hint">Debes estar a menos de {{ selectedArea.geofenceRadiusKm | number:'1.0-1' }} km del área para marcarla como visitada.</p>
           }
+
+          @if (selectedArea.visitado) {
+            <div class="victory-photo">
+              <span class="vp-title">📸 Tu Foto de Victoria</span>
+
+              @if (selectedArea.fotoUrl) {
+                <div class="vp-preview">
+                  <img [src]="selectedArea.fotoUrl" alt="Foto de victoria en {{ selectedArea.nombre_ASP }}" />
+                </div>
+              } @else if (!uploadingPhoto) {
+                <p class="vp-empty">Sube una foto para recordar tu visita a esta área.</p>
+              }
+
+              @if (photoError) {
+                <p class="vp-error">{{ photoError }}</p>
+              }
+
+              <div class="vp-actions">
+                <label class="vp-btn" [class.disabled]="uploadingPhoto">
+                  <input type="file" accept="image/jpeg,image/png,image/webp" hidden
+                         [disabled]="uploadingPhoto"
+                         (change)="onPhotoSelected($event, selectedArea)" />
+                  @if (uploadingPhoto) {
+                    Subiendo…
+                  } @else {
+                    {{ selectedArea.fotoUrl ? 'Cambiar foto' : 'Subir foto' }}
+                  }
+                </label>
+                @if (selectedArea.fotoUrl && !uploadingPhoto) {
+                  <button type="button" class="vp-btn vp-remove" (click)="removePhoto(selectedArea)">Eliminar</button>
+                }
+              </div>
+            </div>
+          }
         } @else {
           <div class="status" [class.visited]="selectedArea.visitado">
             <span class="status-dot"></span>

@@ -22,6 +22,7 @@ export interface ProtectedArea {
   latitud?: number;
   longitud?: number;
   geofenceRadiusKm?: number;
+  fotoUrl?: string | null;
 }
 
 export interface VisitCoords {
@@ -56,6 +57,10 @@ export class ApiService {
 
   toggleVisit(codigo: string, coords?: VisitCoords): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${codigo}/visit`, coords ?? {});
+  }
+
+  savePhotoUrl(codigo: string, photoUrl: string | null): Observable<{ fotoUrl: string | null }> {
+    return this.http.put<{ fotoUrl: string | null }>(`${this.apiUrl}/${codigo}/photo`, { photoUrl });
   }
 
   getSvgMap(): Observable<string> {
