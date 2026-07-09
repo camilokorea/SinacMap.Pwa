@@ -5,11 +5,12 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ApiService, ProtectedArea, VisitError } from '../services/api';
 import { AuthService } from '../services/auth';
 import { GeolocationService } from '../services/geolocation';
+import { PhotoService } from '../services/photo.service';
 import { MyBadgesComponent } from '../my-badges/my-badges';
 import { ShareCardComponent } from '../share-card/share-card';
 import { LeaderboardComponent } from '../leaderboard/leaderboard';
 import { User } from '@angular/fire/auth';
-import { Observable, of } from 'rxjs';
+import { Observable, of, firstValueFrom } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import panzoom, { PanZoom } from 'panzoom';
@@ -30,6 +31,7 @@ export class Map implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
   private geolocationService = inject(GeolocationService);
+  private photoService = inject(PhotoService);
 
   mapHtml: SafeHtml = '';
   protectedAreas: ProtectedArea[] = [];
@@ -56,6 +58,10 @@ export class Map implements OnInit {
   // GPS check-in state
   checkingLocation: boolean = false;
   locationBanner: string | null = null;
+
+  // Victory Photo state
+  uploadingPhoto: boolean = false;
+  photoError: string | null = null;
 
   @HostListener('window:offline')
   onOffline() {
@@ -204,6 +210,7 @@ export class Map implements OnInit {
 
   selectFromSearch(area: ProtectedArea) {
     this.selectedArea = area;
+    this.photoError = null;
     this.showResults = false;
     this.searchQuery = '';
     this.searchResults = [];
@@ -278,6 +285,63 @@ export class Map implements OnInit {
         navigator.vibrate(area.visitado ? [30, 20, 30] : 20);
       }
     });
+  }
+
+  onPhotoSelected(event: Event, area: ProtectedArea) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Reset so choosing the same file again still fires (change) next time.
+    input.value = '';
+    if (!file) return;
+
+    this.photoError = null;
+
+    if (!PhotoService.ACCEPTED_TYPES.includes(file.type)) {
+      this.photoError = 'Formato no válido. Usa una imagen JPG, PNG o WEBP.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (file.size > PhotoService.MAX_BYTES) {
+      this.photoError = 'La imagen supera el límite de 5 MB.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.uploadingPhoto = true;
+    this.cdr.detectChanges();
+
+    this.photoService.upload(area.codigo, file)
+      .then(url => firstValueFrom(this.apiService.savePhotoUrl(area.codigo, url)).then(() => url))
+      .then(url => {
+        area.fotoUrl = url;
+        this.uploadingPhoto = false;
+        if ('vibrate' in navigator) navigator.vibrate([30, 20, 30]);
+        this.cdr.detectChanges();
+      })
+      .catch(() => {
+        this.uploadingPhoto = false;
+        this.photoError = 'No se pudo subir la foto. Inténtalo de nuevo.';
+        this.cdr.detectChanges();
+      });
+  }
+
+  removePhoto(area: ProtectedArea) {
+    this.photoError = null;
+    this.uploadingPhoto = true;
+    this.cdr.detectChanges();
+
+    this.photoService.remove(area.codigo)
+      .then(() => firstValueFrom(this.apiService.savePhotoUrl(area.codigo, null)))
+      .then(() => {
+        area.fotoUrl = null;
+        this.uploadingPhoto = false;
+        this.cdr.detectChanges();
+      })
+      .catch(() => {
+        this.uploadingPhoto = false;
+        this.photoError = 'No se pudo eliminar la foto. Inténtalo de nuevo.';
+        this.cdr.detectChanges();
+      });
   }
 
   toggleCategory(category: string) {
@@ -357,6 +421,7 @@ export class Map implements OnInit {
         const area = this.protectedAreas.find(a => a.codigo === codigo);
         if (area) {
           this.selectedArea = area;
+          this.photoError = null;
         }
       }
     }
@@ -364,6 +429,7 @@ export class Map implements OnInit {
 
   closeDetails() {
     this.selectedArea = null;
+    this.photoError = null;
   }
 
   zoomIn() {
