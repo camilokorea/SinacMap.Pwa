@@ -144,7 +144,10 @@
   }
 
   <!-- Map container -->
-  <div #mapContainer class="map-container" [innerHTML]="mapHtml" (click)="handleMapClick($event)"></div>
+  <div #mapContainer class="map-container" [innerHTML]="mapHtml"
+       (pointerdown)="onMapPointerDown($event)"
+       (pointerup)="onMapPointerUp($event)"
+       (pointercancel)="onMapPointerCancel()"></div>
   
   <!-- Zoom Controls -->
   <div class="zoom-controls" (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
