@@ -86,7 +86,7 @@ export class Map implements OnInit {
   // Filter state
   categories: string[] = [];
   selectedCategories: Set<string> = new Set<string>();
-  categoriesCollapsed = false;
+  categoriesCollapsed = true;
 
   get selectedRegionFacebookUrl(): string {
     if (!this.selectedArea) return 'https://www.facebook.com/cr.sinac';
