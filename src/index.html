@@ -5,7 +5,9 @@
     <title>SinacMapPwa</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <meta name="theme-color" content="#14532d" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="preload" as="image" href="icons/icon-512x512.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,6 +22,57 @@
     />
   </head>
   <body>
+    <!-- Startup splash: inlined so it paints before the Angular bundle loads,
+         avoiding a blank flash. Removed by the app once the map is ready
+         (see App/Map component). Aligned with the PWA manifest background. -->
+    <style>
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        opacity: 1;
+        transition: opacity 0.4s ease;
+      }
+      #app-splash.app-splash--hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #app-splash .app-splash__logo {
+        width: min(60vw, 240px);
+        height: auto;
+        animation: app-splash-pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes app-splash-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.92;
+        }
+        50% {
+          transform: scale(1.04);
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #app-splash .app-splash__logo {
+          animation: none;
+        }
+      }
+    </style>
+    <div id="app-splash" role="status" aria-label="Cargando SinacMap">
+      <img
+        class="app-splash__logo"
+        src="icons/icon-512x512.png"
+        alt="SinacMap"
+        width="240"
+        height="240"
+      />
+    </div>
+
     <app-root></app-root>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
   </body>
