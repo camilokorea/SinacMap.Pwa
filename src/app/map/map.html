@@ -187,6 +187,33 @@
           <span class="value">{{ selectedArea.area_km2 | number:'1.2-2' }} km²</span>
         </div>
 
+        <!-- Real-time weather for the selected area -->
+        <div class="weather-widget">
+          <h4 class="weather-title">Clima actual</h4>
+
+          @if (weatherLoading) {
+            <div class="weather-loading">
+              <span class="weather-spinner"></span>
+              <span>Cargando clima…</span>
+            </div>
+          } @else if (weather) {
+            <div class="weather-main">
+              <span class="weather-icon">{{ weather.icon }}</span>
+              <span class="weather-temp">{{ weather.temperature }}°C</span>
+              <span class="weather-desc">{{ weather.description }}</span>
+            </div>
+            <div class="weather-details">
+              <span title="Sensación térmica">🌡️ {{ weather.apparentTemperature }}°C</span>
+              <span title="Humedad">💧 {{ weather.humidity }}%</span>
+              <span title="Viento">💨 {{ weather.windSpeed }} km/h</span>
+            </div>
+          } @else if (weatherError) {
+            <p class="weather-error">{{ weatherError }}</p>
+          } @else {
+            <p class="weather-error">Ubicación no disponible para esta área.</p>
+          }
+        </div>
+
         @if (selectedArea.aiDescripcion) {
           <div class="ai-description">
             <p>{{ selectedArea.aiDescripcion }}</p>
