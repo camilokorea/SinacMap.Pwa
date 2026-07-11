@@ -381,20 +381,47 @@ export class Map implements OnInit {
     });
   }
 
-  handleMapClick(event: MouseEvent) {
-    const target = event.target as SVGElement;
-    const areaNode = target.closest('[data-sinac]') as SVGElement;
-    
-    if (areaNode) {
-      const sinacValue = areaNode.getAttribute('data-sinac');
-      if (sinacValue) {
-        const codigo = sinacValue.split('-')[0];
-        const area = this.protectedAreas.find(a => a.codigo === codigo);
-        if (area) {
-          this.selectedArea = area;
-          this.loadWeather(area);
-        }
-      }
+  // Distinguishing a tap from a pan gesture: panzoom calls preventDefault()
+  // on touch events, which suppresses the synthetic `click`, so on touch
+  // devices taps never reach a click handler. We track the pointer down
+  // position and only treat a pointerup as a selection when the pointer
+  // barely moved (a tap, not a pan).
+  private pointerDownPos: { x: number; y: number } | null = null;
+  private static readonly TAP_MOVE_THRESHOLD_PX = 10;
+
+  onMapPointerDown(event: PointerEvent) {
+    this.pointerDownPos = { x: event.clientX, y: event.clientY };
+  }
+
+  onMapPointerUp(event: PointerEvent) {
+    if (!this.pointerDownPos) return;
+    const dx = event.clientX - this.pointerDownPos.x;
+    const dy = event.clientY - this.pointerDownPos.y;
+    this.pointerDownPos = null;
+
+    // Ignore pan/drag gestures — only a near-stationary press counts as a tap.
+    if (Math.hypot(dx, dy) > Map.TAP_MOVE_THRESHOLD_PX) return;
+
+    this.selectAreaFromEvent(event.target as EventTarget | null);
+  }
+
+  onMapPointerCancel() {
+    this.pointerDownPos = null;
+  }
+
+  private selectAreaFromEvent(target: EventTarget | null) {
+    const areaNode = (target as Element | null)?.closest?.('[data-sinac]') as SVGElement | null;
+    if (!areaNode) return;
+
+    const sinacValue = areaNode.getAttribute('data-sinac');
+    if (!sinacValue) return;
+
+    const codigo = sinacValue.split('-')[0];
+    const area = this.protectedAreas.find(a => a.codigo === codigo);
+    if (area) {
+      this.selectedArea = area;
+      this.loadWeather(area);
+      this.applyFiltersAndColors();
     }
   }
 
