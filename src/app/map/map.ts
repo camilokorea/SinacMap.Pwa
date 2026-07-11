@@ -14,6 +14,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import panzoom, { PanZoom } from 'panzoom';
+import { hideSplash } from '../splash';
 
 @Component({
   selector: 'app-map',
@@ -122,7 +123,12 @@ export class Map implements OnInit {
         return of('');
       })
     ).subscribe(svgContent => {
-      if (!svgContent) return;
+      if (!svgContent) {
+        // Even when the map fails to load (e.g. offline) the app is ready to
+        // interact, so dismiss the startup splash rather than leave it stuck.
+        hideSplash();
+        return;
+      }
       this.mapHtml = this.sanitizer.bypassSecurityTrustHtml(svgContent);
       this.cdr.detectChanges();
       const svgElement = this.mapContainer.nativeElement.querySelector('svg');
@@ -139,6 +145,9 @@ export class Map implements OnInit {
 
         this.applyFiltersAndColors();
       }
+
+      // Map SVG is now in the DOM — hand off from the splash to the live app.
+      hideSplash();
     });
   }
 
