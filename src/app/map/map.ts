@@ -5,11 +5,12 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ApiService, ProtectedArea, VisitError } from '../services/api';
 import { AuthService } from '../services/auth';
 import { GeolocationService } from '../services/geolocation';
+import { WeatherService, Weather } from '../services/weather.service';
 import { MyBadgesComponent } from '../my-badges/my-badges';
 import { ShareCardComponent } from '../share-card/share-card';
 import { LeaderboardComponent } from '../leaderboard/leaderboard';
 import { User } from '@angular/fire/auth';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import panzoom, { PanZoom } from 'panzoom';
@@ -30,6 +31,7 @@ export class Map implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
   private geolocationService = inject(GeolocationService);
+  private weatherService = inject(WeatherService);
 
   mapHtml: SafeHtml = '';
   protectedAreas: ProtectedArea[] = [];
@@ -56,6 +58,12 @@ export class Map implements OnInit {
   // GPS check-in state
   checkingLocation: boolean = false;
   locationBanner: string | null = null;
+
+  // Weather state (for the selected area)
+  weather: Weather | null = null;
+  weatherLoading: boolean = false;
+  weatherError: string | null = null;
+  private weatherSub: Subscription | null = null;
 
   @HostListener('window:offline')
   onOffline() {
@@ -217,8 +225,35 @@ export class Map implements OnInit {
     if (this.selectedCategories.size > 0 && !this.selectedCategories.has(area.categoria)) {
       this.selectedCategories.add(area.categoria);
     }
-    
+
+    this.loadWeather(area);
     this.applyFiltersAndColors();
+  }
+
+  /** Fetches current weather for the given area if it has coordinates. */
+  private loadWeather(area: ProtectedArea) {
+    this.weatherSub?.unsubscribe();
+    this.weather = null;
+    this.weatherError = null;
+
+    if (typeof area.latitud !== 'number' || typeof area.longitud !== 'number') {
+      this.weatherLoading = false;
+      return;
+    }
+
+    this.weatherLoading = true;
+    this.weatherSub = this.weatherService.getCurrentWeather(area.latitud, area.longitud).pipe(
+      catchError(() => {
+        this.weatherError = navigator.onLine
+          ? 'No se pudo cargar el clima.'
+          : 'Clima no disponible sin conexión.';
+        return of(null);
+      })
+    ).subscribe(weather => {
+      this.weatherLoading = false;
+      this.weather = weather;
+      this.cdr.detectChanges();
+    });
   }
 
   toggleVisit(area: ProtectedArea) {
@@ -357,6 +392,7 @@ export class Map implements OnInit {
         const area = this.protectedAreas.find(a => a.codigo === codigo);
         if (area) {
           this.selectedArea = area;
+          this.loadWeather(area);
         }
       }
     }
@@ -364,6 +400,10 @@ export class Map implements OnInit {
 
   closeDetails() {
     this.selectedArea = null;
+    this.weatherSub?.unsubscribe();
+    this.weather = null;
+    this.weatherError = null;
+    this.weatherLoading = false;
   }
 
   zoomIn() {
