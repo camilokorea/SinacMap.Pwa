@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// Firebase Storage security rules for SinacMap.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Victory Photos — one per user per protected area, stored at
+    // victory-photos/{uid}/{codigo}. Anyone can view a photo (they are shown
+    // via public download URLs), but only the owner may upload, replace or
+    // delete their own images, and uploads are capped at 5 MB and images only.
+    match /victory-photos/{uid}/{fileName} {
+      allow read: if true;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Deny everything else by default.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
