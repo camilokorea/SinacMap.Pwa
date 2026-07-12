@@ -76,7 +76,7 @@ export class ProgressCardService {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 38px "Outfit", Arial, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('SinacMap', 82, 44);
+    ctx.fillText('Costa Rica Mapa', 82, 44);
 
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.font = '25px "Outfit", Arial, sans-serif';
@@ -222,7 +222,7 @@ export class ProgressCardService {
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = '22px "Outfit", Arial, sans-serif';
-    ctx.fillText('sinacmap.app', 540, 1035);
+    ctx.fillText('Costa Rica Mapa', 540, 1035);
     ctx.textBaseline = 'alphabetic';
   }
 }
