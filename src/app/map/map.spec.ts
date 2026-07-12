@@ -33,6 +33,28 @@ describe('Map', () => {
     expect(component).toBeTruthy();
   });
 
+  describe('Waze navigation link', () => {
+    it('builds a Waze deep link from the selected area coordinates', () => {
+      component.selectedArea = {
+        codigo: 'P01', nombre_ASP: 'Test', categoria: 'Parque', visitado: false,
+        latitud: 10.5, longitud: -85.6,
+      } as ProtectedArea;
+      expect(component.selectedAreaHasCoords).toBe(true);
+      expect(component.selectedRegionWazeUrl).toBe('https://waze.com/ul?ll=10.5,-85.6&navigate=yes');
+    });
+
+    it('returns null when the selected area has no coordinates', () => {
+      component.selectedArea = { codigo: 'P02', nombre_ASP: 'NoCoords', categoria: 'Parque', visitado: false } as ProtectedArea;
+      expect(component.selectedAreaHasCoords).toBe(false);
+      expect(component.selectedRegionWazeUrl).toBeNull();
+    });
+
+    it('returns null when no area is selected', () => {
+      component.selectedArea = null;
+      expect(component.selectedRegionWazeUrl).toBeNull();
+    });
+  });
+
   describe('touch/pointer selection', () => {
     let area: ProtectedArea;
     let path: SVGPathElement;

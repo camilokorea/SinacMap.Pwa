@@ -661,13 +661,40 @@
       font-size: 0.95rem;
       transition: all 0.2s ease;
       box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
-      
+
       &:hover {
         background: #0284c7;
         transform: translateY(-2px);
         box-shadow: 0 6px 15px rgba(14, 165, 233, 0.4);
       }
-      
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .waze-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: #33ccff;
+      color: #05204a;
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(51, 204, 255, 0.35);
+
+      &:hover {
+        background: #1ab8ec;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(51, 204, 255, 0.45);
+      }
+
       &:active {
         transform: translateY(0);
       }

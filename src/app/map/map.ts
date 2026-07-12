@@ -95,6 +95,21 @@ export class Map implements OnInit {
     return `https://www.facebook.com/search/top?q=${encodeURIComponent(query)}`;
   }
 
+  get selectedAreaHasCoords(): boolean {
+    return (
+      !!this.selectedArea &&
+      typeof this.selectedArea.latitud === 'number' &&
+      typeof this.selectedArea.longitud === 'number'
+    );
+  }
+
+  get selectedRegionWazeUrl(): string | null {
+    if (!this.selectedAreaHasCoords) return null;
+    const { latitud, longitud } = this.selectedArea!;
+    // Waze universal deep link: opens the app on mobile if installed, otherwise the web app.
+    return `https://waze.com/ul?ll=${latitud},${longitud}&navigate=yes`;
+  }
+
   get visitedCount(): number {
     return this.protectedAreas.filter(a => a.visitado).length;
   }
