@@ -1157,7 +1157,7 @@
    info-card keeps them tappable even while a region card is open. */
 .zoom-controls {
   position: absolute;
-  bottom: calc(30px + env(safe-area-inset-bottom));
+  bottom: calc(50px + env(safe-area-inset-bottom));
   right: calc(30px + env(safe-area-inset-right));
   display: flex;
   flex-direction: column;
@@ -1279,7 +1279,7 @@
   }
 
   .zoom-controls {
-    bottom: calc(20px + env(safe-area-inset-bottom));
+    bottom: calc(40px + env(safe-area-inset-bottom));
     right: calc(16px + env(safe-area-inset-right));
   }
 }
