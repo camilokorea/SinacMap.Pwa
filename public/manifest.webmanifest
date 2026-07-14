@@ -1,6 +1,6 @@
 {
-  "name": "sinac-map-pwa",
-  "short_name": "sinac-map-pwa",
+  "name": "Costa Rica Mapa",
+  "short_name": "CR Mapa",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
