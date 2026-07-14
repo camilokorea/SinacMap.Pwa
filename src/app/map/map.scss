@@ -1078,18 +1078,81 @@
     font-size: 0.8rem;
   }
 
+  /* Full-screen region dialog on phones (issue #29): the card fills the whole
+     viewport for a native, app-like feel. A flex column keeps the header and
+     footer pinned while the body scrolls, and env(safe-area-inset-*) keeps the
+     content clear of notches / rounded corners on modern smartphones. */
   .info-card {
-    top: auto;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
+    position: fixed;
+    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: auto;
-    max-height: 70vh;
-    overflow-y: auto;
+    height: auto;
+    max-width: 100vw;
+    max-height: 100dvh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+
+    &.fade-in-right {
+      animation: fadeInUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+    }
+
+    .card-header {
+      flex: 0 0 auto;
+      height: auto;
+      min-height: 80px;
+      padding-top: env(safe-area-inset-top);
+
+      .badge {
+        left: max(24px, env(safe-area-inset-left));
+      }
+
+      /* Larger, higher-contrast close target for the full-screen layout. */
+      .close-btn {
+        top: calc(12px + env(safe-area-inset-top));
+        right: max(12px, env(safe-area-inset-right));
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    .card-body {
+      flex: 1 1 auto;
+      max-height: none;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-left: max(24px, env(safe-area-inset-left));
+      padding-right: max(24px, env(safe-area-inset-right));
+    }
+
+    .card-footer {
+      flex: 0 0 auto;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      padding-left: max(24px, env(safe-area-inset-left));
+      padding-right: max(24px, env(safe-area-inset-right));
+    }
   }
 
   .zoom-controls {
     bottom: 20px;
     right: 16px;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
