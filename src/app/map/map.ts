@@ -166,6 +166,26 @@ export class Map implements OnInit {
     });
   }
 
+  /** Opens/closes the navigation menu from the persistent top-bar control. */
+  toggleMenu() {
+    this.filtersOpen = !this.filtersOpen;
+    if ('vibrate' in navigator) {
+      navigator.vibrate(10);
+    }
+  }
+
+  /** Tapping the persistent logo returns to the map home: closes any open
+      overlays and re-centers the map. */
+  goHome() {
+    this.filtersOpen = false;
+    this.showResults = false;
+    this.closeDetails();
+    this.centerMap();
+    if ('vibrate' in navigator) {
+      navigator.vibrate(10);
+    }
+  }
+
   toggleTheme() {
     this.isDarkTheme = !this.isDarkTheme;
     localStorage.setItem('theme', this.isDarkTheme ? 'dark' : 'light');
