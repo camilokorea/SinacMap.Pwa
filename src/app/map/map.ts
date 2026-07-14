@@ -16,6 +16,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import panzoom, { PanZoom } from 'panzoom';
 import { hideSplash } from '../splash';
 
+/**
+ * A GPS check-in message. `action`, when present, renders a button in the
+ * banner — e.g. "Activar GPS" to re-request the location permission.
+ */
+export interface LocationBanner {
+  message: string;
+  action?: { label: string; handler: () => void };
+}
+
 @Component({
   selector: 'app-map',
   standalone: true,
@@ -58,7 +67,7 @@ export class Map implements OnInit {
 
   // GPS check-in state
   checkingLocation: boolean = false;
-  locationBanner: string | null = null;
+  locationBanner: LocationBanner | null = null;
 
   // Weather state (for the selected area)
   weather: Weather | null = null;
@@ -319,17 +328,65 @@ export class Map implements OnInit {
       const distance = this.geolocationService.distanceKm(area.latitud!, area.longitud!, coords.latitud, coords.longitud);
 
       if (distance > area.geofenceRadiusKm!) {
-        this.locationBanner = `Estás a ${distance.toFixed(1)} km del área — debes estar dentro de sus límites para marcarla como visitada.`;
+        this.locationBanner = { message: `Estás a ${distance.toFixed(1)} km del área — debes estar dentro de sus límites para marcarla como visitada.` };
         this.cdr.detectChanges();
         return;
       }
 
       this.performToggle(area, coords);
-    }).catch(() => {
-      this.checkingLocation = false;
-      this.locationBanner = 'No se pudo obtener tu ubicación. Activa el GPS e inténtalo de nuevo.';
-      this.cdr.detectChanges();
+    }).catch((error: unknown) => {
+      this.handleLocationError(area, error);
     });
+  }
+
+  /**
+   * Turns a failed geolocation attempt into an actionable banner, tailored to
+   * *why* it failed (issue #41). When the permission can still be prompted we
+   * offer an "Activar GPS" retry; when it's blocked we explain how to re-enable
+   * it in the browser settings, since the app can't re-prompt programmatically.
+   */
+  private async handleLocationError(area: ProtectedArea, error: unknown) {
+    this.checkingLocation = false;
+
+    if (error instanceof Error && error.message === 'unsupported') {
+      this.locationBanner = { message: 'Tu dispositivo no admite geolocalización, así que no podemos verificar tu ubicación.' };
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const code = (error as GeolocationPositionError | undefined)?.code;
+    const retry = { label: 'Activar GPS', handler: () => this.toggleVisit(area) };
+
+    if (code === 1 /* PERMISSION_DENIED */) {
+      const state = await this.geolocationService.getPermissionState();
+      // Only 'denied' is a hard block. 'prompt' / 'unsupported' can still be
+      // re-prompted (e.g. the user dismissed the prompt without choosing).
+      if (state === 'denied') {
+        this.locationBanner = {
+          message: 'El permiso de ubicación está bloqueado. Actívalo tocando el icono del candado 🔒 junto a la dirección → Permisos → Ubicación, y recarga la página.',
+        };
+      } else {
+        this.locationBanner = {
+          message: 'Necesitamos tu ubicación para el check-in. Toca “Activar GPS” y permite el acceso.',
+          action: retry,
+        };
+      }
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const message = code === 3 /* TIMEOUT */
+      ? 'Se agotó el tiempo para obtener tu ubicación. Verifica que el GPS esté activado e inténtalo de nuevo.'
+      : 'No se pudo obtener tu ubicación. Activa el GPS e inténtalo de nuevo.';
+    this.locationBanner = { message, action: retry };
+    this.cdr.detectChanges();
+  }
+
+  /** Runs the banner's action (e.g. retry check-in) and dismisses the banner. */
+  runLocationAction() {
+    const action = this.locationBanner?.action;
+    this.locationBanner = null;
+    action?.handler();
   }
 
   private performToggle(area: ProtectedArea, coords?: { latitud: number; longitud: number }) {
@@ -344,7 +401,7 @@ export class Map implements OnInit {
         this.applyFiltersAndColors();
         if (err.status === 400 && err.error) {
           const visitError = err.error as VisitError;
-          this.locationBanner = visitError.message || 'No se pudo verificar tu ubicación.';
+          this.locationBanner = { message: visitError.message || 'No se pudo verificar tu ubicación.' };
         } else {
           this.offlineBanner = 'No se pudo guardar — sin conexión';
         }

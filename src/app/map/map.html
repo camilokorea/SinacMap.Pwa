@@ -157,9 +157,13 @@
 
   <!-- GPS check-in banner -->
   @if (locationBanner) {
-    <div class="location-banner" (click)="locationBanner = null">
+    <div class="location-banner">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-      {{ locationBanner }}
+      <span class="location-banner__message">{{ locationBanner.message }}</span>
+      @if (locationBanner.action) {
+        <button type="button" class="location-banner__action" (click)="runLocationAction()">{{ locationBanner.action.label }}</button>
+      }
+      <button type="button" class="location-banner__dismiss" aria-label="Descartar" (click)="locationBanner = null">✕</button>
     </div>
   }
 

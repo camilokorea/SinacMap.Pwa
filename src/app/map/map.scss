@@ -80,12 +80,45 @@
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   max-width: min(90vw, 420px);
-  cursor: pointer;
   animation: slide-down 0.3s ease;
   background: rgba(127, 29, 29, 0.92);
   color: #fca5a5;
 
   svg { flex-shrink: 0; }
+
+  &__message { flex: 1 1 auto; }
+
+  &__action {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    border: 1px solid currentColor;
+    border-radius: 14px;
+    background: rgba(252, 165, 165, 0.12);
+    color: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover { background: rgba(252, 165, 165, 0.24); }
+  }
+
+  &__dismiss {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+
+    &:hover { opacity: 1; }
+  }
 
   @keyframes slide-down {
     from { transform: translateX(-50%) translateY(-16px); opacity: 0; }

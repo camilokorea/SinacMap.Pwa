@@ -94,4 +94,63 @@ describe('Map', () => {
       expect(component.selectedArea).toBeNull();
     });
   });
+
+  describe('GPS check-in error handling (issue #41)', () => {
+    let area: ProtectedArea;
+
+    beforeEach(() => {
+      area = { codigo: 'P01', nombre_ASP: 'Test', categoria: 'Parque', visitado: false } as ProtectedArea;
+    });
+
+    const setPermissionState = (state: string) => {
+      (component as any).geolocationService.getPermissionState = () => Promise.resolve(state);
+    };
+
+    it('offers an "Activar GPS" retry when the permission can still be prompted', async () => {
+      setPermissionState('prompt');
+      await (component as any).handleLocationError(area, { code: 1 } as GeolocationPositionError);
+
+      expect(component.locationBanner?.action?.label).toBe('Activar GPS');
+      expect(component.checkingLocation).toBe(false);
+    });
+
+    it('shows settings guidance and no retry when the permission is blocked', async () => {
+      setPermissionState('denied');
+      await (component as any).handleLocationError(area, { code: 1 } as GeolocationPositionError);
+
+      expect(component.locationBanner?.action).toBeUndefined();
+      expect(component.locationBanner?.message).toContain('bloqueado');
+    });
+
+    it('still offers a retry on PERMISSION_DENIED when the Permissions API is unsupported', async () => {
+      setPermissionState('unsupported');
+      await (component as any).handleLocationError(area, { code: 1 } as GeolocationPositionError);
+
+      expect(component.locationBanner?.action?.label).toBe('Activar GPS');
+    });
+
+    it('offers a retry with a timeout-specific message on TIMEOUT', async () => {
+      await (component as any).handleLocationError(area, { code: 3 } as GeolocationPositionError);
+
+      expect(component.locationBanner?.action?.label).toBe('Activar GPS');
+      expect(component.locationBanner?.message).toContain('tiempo');
+    });
+
+    it('reports an unsupported device without a retry action', async () => {
+      await (component as any).handleLocationError(area, new Error('unsupported'));
+
+      expect(component.locationBanner?.action).toBeUndefined();
+      expect(component.locationBanner?.message).toContain('no admite');
+    });
+
+    it('runLocationAction runs the handler and dismisses the banner', () => {
+      let ran = false;
+      component.locationBanner = { message: 'x', action: { label: 'Activar GPS', handler: () => { ran = true; } } };
+
+      component.runLocationAction();
+
+      expect(ran).toBe(true);
+      expect(component.locationBanner).toBeNull();
+    });
+  });
 });
