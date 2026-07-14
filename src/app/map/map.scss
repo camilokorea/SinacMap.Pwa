@@ -28,7 +28,10 @@
   top: calc(var(--top-bar-height) + 12px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  /* Above every overlay, including the full-screen region dialog (issue #39):
+     the mobile .info-card sits at z-index 1000, so notifications must sit
+     higher or they render behind it when a region dialog is open. */
+  z-index: 2000;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -63,7 +66,10 @@
   top: calc(var(--top-bar-height) + 12px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  /* Above the region dialog (issue #39) — see .offline-banner note. The GPS
+     check-in error is raised from inside an open region dialog, so this is the
+     banner most affected by the stacking bug. */
+  z-index: 2000;
   display: flex;
   align-items: center;
   gap: 8px;
