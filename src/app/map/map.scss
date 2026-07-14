@@ -71,21 +71,73 @@
      banner most affected by the stacking bug. */
   z-index: 2000;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
+  flex-direction: column;
+  gap: 10px;
+  /* Extra right padding leaves room for the absolutely-positioned dismiss. */
+  padding: 12px 40px 12px 16px;
+  border-radius: 16px;
   font-size: 13px;
   font-weight: 500;
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  max-width: min(90vw, 420px);
-  cursor: pointer;
+  width: min(92vw, 400px);
   animation: slide-down 0.3s ease;
-  background: rgba(127, 29, 29, 0.92);
+  background: rgba(127, 29, 29, 0.94);
   color: #fca5a5;
 
-  svg { flex-shrink: 0; }
+  &__body {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    svg { flex-shrink: 0; margin-top: 1px; }
+  }
+
+  &__message {
+    flex: 1;
+    line-height: 1.45;
+    /* Long guidance can include a URL-like path — keep it from overflowing. */
+    overflow-wrap: anywhere;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__action {
+    padding: 7px 16px;
+    border: 1px solid currentColor;
+    border-radius: 16px;
+    background: rgba(252, 165, 165, 0.14);
+    color: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover { background: rgba(252, 165, 165, 0.26); }
+    &:active { transform: scale(0.97); }
+  }
+
+  &__dismiss {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+
+    &:hover { opacity: 1; }
+  }
 
   @keyframes slide-down {
     from { transform: translateX(-50%) translateY(-16px); opacity: 0; }
