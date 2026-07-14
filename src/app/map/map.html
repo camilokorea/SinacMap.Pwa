@@ -241,6 +241,17 @@
           <div class="ai-badge">Contenido generado por IA</div>
         }
 
+        @if (selectedRegionWazeUrl) {
+          <div class="info-row" style="margin-top: 16px;">
+            <a [href]="selectedRegionWazeUrl" target="_blank" rel="noopener" class="waze-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M12 2a10 10 0 0 0-9.17 14.02c-.2.62-.6 1.2-1.15 1.6a.75.75 0 0 0 .45 1.35 5.6 5.6 0 0 0 3.3-1.06A9.96 9.96 0 0 0 12 19a10 10 0 0 0 0-17zm-3 8.5a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm6 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm-3 5.5a4.5 4.5 0 0 1-4.24-3 .75.75 0 0 1 1.41-.5 3 3 0 0 0 5.66 0 .75.75 0 0 1 1.41.5A4.5 4.5 0 0 1 12 16z"/>
+              </svg>
+              Navegar con Waze
+            </a>
+          </div>
+        }
+
         <div class="info-row" style="margin-top: 16px;">
           <a [href]="selectedRegionFacebookUrl" target="_blank" class="facebook-btn">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
