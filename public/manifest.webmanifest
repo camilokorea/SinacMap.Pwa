@@ -1,6 +1,6 @@
 {
   "name": "Costa Rica Mapa",
-  "short_name": "Costa Rica Mapa",
+  "short_name": "CR Mapa",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
